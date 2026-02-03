@@ -18,7 +18,7 @@ CREATE TABLE contact (
 ### Insert Data
 ```
 INSERT INTO contact(name,email,mob,age,city)
-VALUES ('kumlesh','kumleshkurre77@gmail.com','7067132459',20,'samoda');
+VALUES ('kumlesh','kumleshkurre77@gmail.com','1234567890',20,'samoda');
 Select Queries
 SELECT * FROM contact;
 SELECT name, mob FROM contact;
