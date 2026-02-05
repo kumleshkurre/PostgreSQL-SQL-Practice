@@ -1,11 +1,23 @@
+📘 PostgreSQL Database & SQL Practice Guide
+---
+
+🔍 Overview
+<p>This repository contains hands-on PostgreSQL database practice, covering everything from database creation to advanced SQL concepts like joins, functions, views, triggers, and foreign keys.</p>
+
+ ### It is designed for:
+- Beginners learning SQL & PostgreSQL
+- Backend developers practicing real-world queries
+- Understanding relational database concepts clearly
+- The project demonstrates clean SQL syntax, practical examples, and real-use cases commonly used in backend development.
+  
 ## 📌 Database Creation
 CREATE DATABASE dbnm;
 -- Example
-```js
+```sql
 CREATE DATABASE kurrecomputers77;
 ```
 ## 📌 Table Creation – Contact
-```js
+```sql
 CREATE TABLE contact (
   id SERIAL,
   name VARCHAR(50),
@@ -16,7 +28,7 @@ CREATE TABLE contact (
 );
 ```
 ### Insert Data
-```js
+```sql
 INSERT INTO contact(name,email,mob,age,city)
 VALUES ('kumlesh','kumleshkurre77@gmail.com','1234567890',20,'samoda');
 Select Queries
@@ -25,34 +37,34 @@ SELECT name, mob FROM contact;
 SELECT name, mob, city FROM contact;
 ```
 ## 📌 WHERE Clause Examples
-```js
+```sql
 SELECT * FROM contact WHERE city='samoda';
 SELECT * FROM contact WHERE age < 19;
 SELECT * FROM contact WHERE age > 19;
 ```
 ### AND / OR
-```js
+```sql
 SELECT * FROM contact WHERE age <= 19 AND city='kusmund';
 SELECT * FROM contact WHERE age <= 19 OR city='kusmund';
 ```
 ### IN / NOT IN
-```js
+```sql
 SELECT * FROM contact WHERE city IN ('kusmund','samoda');
 SELECT * FROM contact WHERE city NOT IN ('kusmund','samoda');
 ```
 ## 📌 ORDER BY
-```js
+```sql
 SELECT * FROM contact ORDER BY name ASC;
 SELECT * FROM contact ORDER BY name DESC;
 ```
 ## 📌 LIKE Pattern Matching
-```js
+```sql
 SELECT * FROM contact WHERE name LIKE 'k%';
 SELECT * FROM contact WHERE name LIKE '%sh';
 SELECT * FROM contact WHERE name LIKE '_a%';
 ```
 ## 📌 Employee Table
-```js
+```sql
 CREATE TABLE employe (
   id SERIAL,
   eid VARCHAR(50),
@@ -63,7 +75,7 @@ CREATE TABLE employe (
 );
 ```
 ### Salary Queries
-```js
+```sql
 SELECT MAX(sal) FROM employe;
 SELECT MIN(sal) FROM employe;
 SELECT AVG(sal::numeric) FROM employe;
@@ -74,20 +86,20 @@ SELECT ename, sal FROM employe WHERE sal=(SELECT MAX(sal) FROM employe);
 SELECT ename, sal FROM employe WHERE sal=(SELECT MIN(sal) FROM employe);
 ```
 ## 📌 LIMIT & OFFSET
-```js
+```sql
 SELECT ename, sal FROM employe ORDER BY sal DESC LIMIT 3;
 SELECT ename, sal FROM employe ORDER BY sal DESC LIMIT 1 OFFSET 1;
 ```
 ## 📌 Food Ordering Tables
 ### food_group
-```js
+```sql
 CREATE TABLE food_group (
   gid SERIAL,
   group_name VARCHAR(50)
 );
 ```
 ### menu
-```js
+```sql
 CREATE TABLE menu (
   mid SERIAL,
   menu_name VARCHAR(50),
@@ -97,7 +109,7 @@ CREATE TABLE menu (
 );
 ```
 ### qtymast
-```js
+```sql
 CREATE TABLE qtymast (
   qid SERIAL,
   qty_type VARCHAR(50),
@@ -105,7 +117,7 @@ CREATE TABLE qtymast (
 );
 ```
 ## 📌 Joins
-```js
+```sql
 SELECT menu_name, menu_price, group_name
 FROM menu, food_group
 WHERE food_group.gid = menu.gid;
@@ -116,33 +128,33 @@ SELECT name, sname FROM staff RIGHT JOIN sub ON staff.id=sub.id;
 SELECT name, sname FROM staff CROSS JOIN sub;
 ```
 ## 📌 UNION
-```js
+```sql
 SELECT group_name FROM food_group
 UNION
 SELECT qty_type FROM qtymast;
 ```
 ## 📌 Calculations
-```js
+```sql
 SELECT menu_name, menu_price, 2 AS qty,
 (2 * menu_price) AS total
 FROM menu WHERE mid=2;
 ```
 ## 📌 String Functions
-```js
+```sql
 SELECT UPPER(menu_name) FROM menu;
 SELECT REVERSE(UPPER(menu_name)) FROM menu;
 SELECT LENGTH(menu_name) FROM menu;
 SELECT REPLACE(menu_name,'ROL','ROLL') FROM menu;
 ```
 ## 📌 Math Functions
-```js
+```sql
 SELECT ABS(-10);
 SELECT FLOOR(10.9);
 SELECT CEIL(10.1);
 SELECT ROUND(10.4);
 ```
 ## 📌 User Defined Function
-```js
+```sql
 CREATE OR REPLACE FUNCTION carea(r NUMERIC)
 RETURNS NUMERIC AS $$
 BEGIN
@@ -152,14 +164,14 @@ $$ LANGUAGE plpgsql;
 SELECT carea(8);
 ```
 ## 📌 Views
-```js
+```sql
 CREATE VIEW edata AS
 SELECT ename, subject, sal FROM employe;
 SELECT * FROM edata;
 ```
 ## 📌 Triggers (Backup & Audit)
 ### Backup Before Delete
-```js
+```sql
 CREATE OR REPLACE FUNCTION backup()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -170,7 +182,7 @@ END;
 $$ LANGUAGE plpgsql;
 ```
 ### Audit After Insert
-```js
+```sql
 CREATE OR REPLACE FUNCTION auditlog()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -179,6 +191,19 @@ VALUES (NEW.id, CURRENT_TIMESTAMP);
 RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
+```
+## 🔐 Auto Increment ID (Identity Column)
+```sql
+ALTER TABLE employe
+ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY;
+```
+
+## Foreign Key Constraint (Table Relationship)
+```sql
+ALTER TABLE staff
+ADD CONSTRAINT fk_staff_employe
+FOREIGN KEY (id)
+REFERENCES employe(id);
 ```
 ## 👨‍💻 Author
 
