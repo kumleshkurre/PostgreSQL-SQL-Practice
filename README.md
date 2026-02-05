@@ -1,7 +1,6 @@
-📘 PostgreSQL Database & SQL Practice Guide
+## 📘 PostgreSQL Database & SQL Practice Guide
 ---
-
-🔍 Overview
+## 🔍 Overview
 <p>This repository contains hands-on PostgreSQL database practice, covering everything from database creation to advanced SQL concepts like joins, functions, views, triggers, and foreign keys.</p>
 
  ### It is designed for:
