@@ -204,6 +204,20 @@ ADD CONSTRAINT fk_staff_employe
 FOREIGN KEY (id)
 REFERENCES employe(id);
 ```
+## Add Column with Default Value
+```sql
+ALTER TABLE contact
+ADD COLUMN status VARCHAR(20) DEFAULT 'active';
+```
+### Description:
+Adds a new column status to the contact table with the default value set to 'active'.
+
+## Reset Auto Increment Sequence
+```sql
+ALTER SEQUENCE contact_id_seq RESTART WITH 2;
+```
+### Description:
+Resets the PostgreSQL sequence so the next generated ID starts from 2.
 ## 👨‍💻 Author
 
 - Kumlesh Kurre
