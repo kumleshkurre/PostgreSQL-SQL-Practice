@@ -123,21 +123,7 @@ CREATE TABLE food_group (
 INSERT INTO food_group(group_name)
 VALUES ('Chinese');
 ```
-```sql
-CREATE TABLE menu (
-  mid INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  menu_name VARCHAR(50),
-  menu_price INT,
-  gid INT,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-```
-## Insert Data
-```sql
-INSERT INTO menu(menu_name, menu_price, gid)
-VALUES ('Momos','80','6');
-```
-### qtymast
+## qtymast
 ```sql
 CREATE TABLE qtymast (
   qid INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -150,12 +136,21 @@ CREATE TABLE qtymast (
 INSERT INTO qtymast(qty_type)
 VALUES ('full');
 ```
-### Joins
+## Menu Data 
 ```sql
-ALTER TABLE menu
-ADD CONSTRAINT fk_food_menu
-FOREIGN KEY (gid)
-REFERENCES food_group(gid);
+CREATE TABLE menu (
+  mid INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  menu_name VARCHAR(50),
+  menu_price INT,
+  gid INT,
+  qid INT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
+## Insert Data
+```sql
+INSERT INTO menu(menu_name, menu_price, gid, qid)
+VALUES ('Momos','80','6','1');
 ```
 ## Foreign Key Constraint (Table Relationship)
 ```sql
@@ -164,12 +159,36 @@ ADD CONSTRAINT fk_food_menu
 FOREIGN KEY (gid)
 REFERENCES food_group(gid);
 ```
+```sql
+ALTER TABLE menu
+ADD CONSTRAINT fk_qty_menu
+FOREIGN KEY (qid)
+REFERENCES qtymast(qid);
+```
+## single cploum data update
+```sql
+UPDATE menu
+SET qid = 1
+WHERE mid = 6;
+```
+## cloum data update
+```sql
+UPDATE menu
+SET qid = 2
+WHERE mid IN (1,2,3,4,5,7,8,9,10);
+```
 ## INNER JOIN सबसे ज़्यादा उपयोग होता है केवल वही records आएंगे जिनका gid दोनों tables में match करता है।
-```SQL  
-SELECT menu_name, menu_price, group_name
-FROM menu
-INNER JOIN food_group
-ON menu.gid = food_group.gid;
+```sql
+SELECT
+    m.menu_name,
+    m.menu_price,
+    fg.group_name,
+    q.qty_type
+FROM menu m
+INNER JOIN food_group fg
+    ON m.gid = fg.gid
+INNER JOIN qtymast q
+    ON m.qid = q.qid;
 ```
 ## LEFT JOIN  menu table के सभी records आएंगे।
 यदि food_group में match नहीं मिला तो group_name में NULL आएगा।
