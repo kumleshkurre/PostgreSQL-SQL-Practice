@@ -57,7 +57,7 @@ SELECT * FROM contact WHERE age <= 19 OR city='Raipur';       Koi bhi ek conditi
 ### IN / NOT IN
 ```sql
 SELECT * FROM contact WHERE city IN ('Mahasamund','Raipur');   Jinki city Mahasamund ya Raipur ho, unhe select karo.
-SELECT * FROM contact WHERE city NOT IN ('kMahasamund','Raipur');  Jinki city Mahasamund aur Raipur ke alawa koi aur ho, unhe select karo.
+SELECT * FROM contact WHERE city NOT IN ('Mahasamund','Raipur');  Jinki city Mahasamund aur Raipur ke alawa koi aur ho, unhe select karo.
 ```
 ## 📌 ORDER BY
 ```sql
@@ -86,7 +86,7 @@ RENAME COLUMN mob TO mobile;
 UPDATE contact
 SET salary = 25000,
     department = 'IT'
-WHERE id = 1;
+WHERE eid = 1;
 ```
 ## सभी records को एक ही value देना
 ```sql
