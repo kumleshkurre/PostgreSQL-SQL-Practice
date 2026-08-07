@@ -8,6 +8,7 @@
 - Backend developers practicing real-world queries
 - Understanding relational database concepts clearly
 - The project demonstrates clean SQL syntax, practical examples, and real-use cases commonly used in backend development.
+  ---
   
 <p> Table Creation: PostgreSQL will always generate the eid automatically.You cannot manually insert a value for this ID.</p>
 
@@ -35,32 +36,39 @@ CREATE TABLE contact (
 ```
 ### UNIQUE Constraint
 ```sql
+-- Prevent duplicate email values
 email VARCHAR(100) UNIQUE
 ```
 ### CHECK Constraint
 ```sql
+-- Allow only age 18 or above
 age INT CHECK(age>=18)
 ```
 ### NOT NULL
 ```sql
+-- Name must always have a value
 name VARCHAR(50) NOT NULL
 ```
 ### DEFAULT
 ```sql
+-- Set 'Active' automatically when no status is provided
 status VARCHAR(20) DEFAULT 'Active'
 ```
 ### Insert Data
 ```sql
+
 INSERT INTO contact(name,email,mob,age,city)
 VALUES ('kumlesh','kumlesh7@gmail.com','1234567890',20,'Raipur');
 ```
 ## Inset Advanced Methods
 ```sql
+-- Insert a record and return the inserted row
 INSERT INTO contact(name,email,mobile,age,city)
 VALUES ('Rahul','rahul7@gmail.com','1234567890',24,'Raipur')
 RETURNING *;
 ```
 ```sql
+-- Insert the record only if the email does not already exist
 INSERT INTO contact(name,email,mobile,age,city)
 VALUES ('Rahul','rahul7@gmail.com','1234567890',24,'Raipur')
 ON CONFLICT (email)
@@ -83,48 +91,49 @@ SELECT * FROM contact WHERE age = 19;
 ### GROUP BY
 
 ```sql
-SELECT city, COUNT(*)
-FROM contact
-GROUP BY city;
+-- Group records by city and count records in each city
+SELECT city, COUNT(*) FROM contact GROUP BY city;
 ```
 ### HAVING
 ```sql
-SELECT city, COUNT(*)
-FROM contact
-GROUP BY city
-HAVING COUNT(*) > 2;
+-- Show only cities having more than 2 records
+SELECT city, COUNT(*) FROM contact GROUP BY city HAVING COUNT(*) > 2;
 ```
 ### DISTINCT
 ```sql
-SELECT DISTINCT city
-FROM contact;
+-- Return unique city names without duplicates
+SELECT DISTINCT city FROM contact;
 ```
 ### BETWEEN
 ```sql
-SELECT *
-FROM contact
-WHERE salary BETWEEN 20000 AND 50000;
+-- Select records where salary is between 20,000 and 50,000
+SELECT * FROM contact WHERE salary BETWEEN 20000 AND 50000;
 ```
 ### IS NULL / IS NOT NULL
 ```sql
-SELECT *
-FROM contact
-WHERE department IS NULL;
-
-SELECT *
-FROM contact
-WHERE department IS NOT NULL;
+-- Select records where department has no value
+SELECT * FROM contact WHERE department IS NULL;
+```
+```sql
+-- Select records where department has a value
+SELECT * FROM contact WHERE department IS NOT NULL;
 ```
 ### AND / OR
 ```sql
-SELECT * FROM contact WHERE age <= 19 AND city='Raipur';    -- Both conditions must be true.
-SELECT * FROM contact WHERE age <= 19 OR city='Raipur';     -- If any one condition is true, the row will be returned.
+-- Both conditions must be true.
+SELECT * FROM contact WHERE age <= 19 AND city='Raipur';
+
+ -- If any one condition is true, the row will be returned.    
+SELECT * FROM contact WHERE age <= 19 OR city='Raipur';    
 ```
 ### IN / NOT IN
 
 ```sql
-SELECT * FROM contact WHERE city IN ('Mahasamund','Raipur');   -- Select the records where the city is Mahasamund or Raipur.
-SELECT * FROM contact WHERE city NOT IN ('Mahasamund','Raipur');  -- Select the records where the city is neither Mahasamund nor Raipur.
+ -- Select the records where the city is Mahasamund or Raipur.
+SELECT * FROM contact WHERE city IN ('Mahasamund','Raipur');
+
+-- Select the records where the city is neither Mahasamund nor Raipur.
+SELECT * FROM contact WHERE city NOT IN ('Mahasamund','Raipur');  
 ```
 ##  ORDER BY
 
@@ -135,12 +144,16 @@ SELECT * FROM contact ORDER BY name DESC;
 ##  LIKE Pattern Matching
 
 ```sql
-SELECT * FROM contact WHERE name LIKE 'k%';  -- Select the records where the name starts with the letter K
-SELECT * FROM contact WHERE name LIKE '_a%'; -- Select the records where the second letter of the name is A.
-SELECT * FROM contact WHERE name LIKE '%sh'; -- Select the records where the name ends with sh.
-```
+-- Select the records where the name starts with the letter K
+SELECT * FROM contact WHERE name LIKE 'k%';
 
-## Add new columns: salary and department
+ -- Select the records where the second letter of the name is A.
+SELECT * FROM contact WHERE name LIKE '_a%';
+
+-- Select the records where the name ends with sh.
+SELECT * FROM contact WHERE name LIKE '%sh'; 
+```
+## Add new columns salary and department
 
 ```sql
 ALTER TABLE contact
@@ -159,7 +172,7 @@ RENAME COLUMN mob TO mobile;
 -- Update the salary and department of a specific employee
 UPDATE contact
 SET salary = 25000,
-    department = 'IT'
+department = 'IT'
 WHERE eid = 1;
 ```
 ## Update all records with the same values.
@@ -167,7 +180,7 @@ WHERE eid = 1;
 -- Update the salary and department for all employees
 UPDATE contact
 SET salary = 20000,
-    department = 'IT';
+department = 'IT';
 ```
 ##  UPDATE / DELETE with `RETURNING`
 ```sql
@@ -187,8 +200,7 @@ RETURNING *;
 
 ```sql
 -- Delete a specific record from the contact table
-DELETE FROM contact
-WHERE eid = 5;
+DELETE FROM contact WHERE eid = 5;
 ```
 ```sql
 -- Remove all records from the contact table
@@ -197,21 +209,32 @@ TRUNCATE TABLE contact;
 
 ### Salary Queries {Aggregate Functions}
 ```sql
-SELECT MAX(salary) FROM contact; -- Highest Salary
-SELECT MIN(salary) FROM contact; -- Lowest Salary
-SELECT AVG(salary::numeric) FROM contact; -- Average Salary
-SELECT SUM(salary::numeric) FROM contact; -- Total Salary
-SELECT COUNT(*) FROM contact;  -- Total Employees
-SELECT name, salary FROM contact WHERE salary = (SELECT MAX(salary) FROM contact); -- Highest Salary Employee
-SELECT name, salary FROM contact WHERE salary = (SELECT MIN(salary) FROM contact); -- Lowest Salary Employee
+-- Highest Salary
+SELECT MAX(salary) FROM contact;
+
+ -- Lowest Salary
+SELECT MIN(salary) FROM contact;
+
+ -- Average Salary
+SELECT AVG(salary::numeric) FROM contact;
+
+-- Total Salary
+SELECT SUM(salary::numeric) FROM contact;
+
+ -- Total Employees
+SELECT COUNT(*) FROM contact;
+
+ -- Highest Salary Employee
+SELECT name, salary FROM contact WHERE salary = (SELECT MAX(salary) FROM contact);
+
+-- Lowest Salary Employee
+SELECT name, salary FROM contact WHERE salary = (SELECT MIN(salary) FROM contact); 
 
 ```
  ### CASE
  ```sql
-SELECT
-name,
-salary,
-CASE
+-- Categorize salary into High, Medium, or Low
+SELECT name, salary, CASE
 WHEN salary >= 50000 THEN 'High'
 WHEN salary >=30000 THEN 'Medium'
 ELSE 'Low'
@@ -220,63 +243,31 @@ FROM contact;
 ```
 ### Subquery
 ```sql
-SELECT *
-FROM contact
+-- Select employees whose salary is higher than the average salary
+SELECT * FROM contact
 WHERE salary >
-(
-SELECT AVG(salary)
-FROM contact
-);
+(SELECT AVG(salary)
+FROM contact);
 ```
-## 8. `EXISTS` / `NOT EXISTS`
+### `EXISTS` / `NOT EXISTS`
 
 `EXISTS` checks whether the subquery returns **at least one record**.
 
 ```sql
--- Return employees who have at least one matching record in the audit table
-SELECT *
-FROM contact c
-WHERE EXISTS (
-    SELECT 1
-    FROM audit a
-    WHERE a.emp_id = c.eid
-);
+  -- Return employees who have at least one matching record in the audit table
+SELECT * FROM contact c
+WHERE EXISTS
+(SELECT 
+FROM audit a
+WHERE a.emp_id = c.eid);
 ```
 `NOT EXISTS` checks whether the subquery returns **no matching records**.
 ```sql
 -- Return employees who do not have any matching record in the audit table
-SELECT *
-FROM contact c
+SELECT * FROM contact c
 WHERE NOT EXISTS (
-    SELECT 1
-    FROM audit a
-    WHERE a.emp_id = c.eid
-);
-```
-## ANY / ALL
-
-ANY and ALL are used with a subquery to compare a value with multiple values.
-
-ANY means the condition must be true for at least one value returned by the subquery.
-```sql
--- Find employees whose salary is greater than at least one salary
-SELECT *
-FROM contact
-WHERE salary > ANY (
-SELECT salary
-FROM contact
-);
-```
-```sql
-ALL means the condition must be true for every value returned by the subquery.
-
--- Find employees whose salary is greater than all salaries
-SELECT *
-FROM contact
-WHERE salary > ALL (
-SELECT salary
-FROM contact
-);
+SELECT FROM audit a
+WHERE a.emp_id = c.eid);
 ```
 ### 📝 Simple Meaning
 
@@ -284,6 +275,25 @@ FROM contact
 * `NOT EXISTS` → If a matching record does not exist, return the row.
 * `SELECT 1` → Used only to check whether a matching record exists; the actual value is not important.
 
+## ANY / ALL
+
+ANY and ALL are used with a subquery to compare a value with multiple values.
+ANY means the condition must be true for at least one value returned by the subquery.
+```sql
+-- Find employees whose salary is greater than at least one salary
+SELECT * FROM contact
+WHERE salary > ANY
+(SELECT salary
+FROM contact);
+```
+ALL means the condition must be true for every value returned by the subquery.
+```sql
+-- Find employees whose salary is greater than all salaries
+SELECT * FROM contact
+WHERE salary > ALL
+(SELECT salary
+FROM contact);
+```
 ##  LIMIT & OFFSET
 ```sql
 SELECT name, salary FROM contact ORDER BY salary DESC LIMIT 3; -- Top 3 Highest Salary Employee
