@@ -54,6 +54,18 @@ status VARCHAR(20) DEFAULT 'Active'
 INSERT INTO contact(name,email,mob,age,city)
 VALUES ('kumlesh','kumlesh7@gmail.com','1234567890',20,'Raipur');
 ```
+## Inset Advanced Methods
+```sql
+INSERT INTO contact(name,email,mobile,age,city)
+VALUES ('Rahul','rahul7@gmail.com','1234567890',24,'Raipur')
+RETURNING *;
+```
+```sql
+INSERT INTO contact(name,email,mobile,age,city)
+VALUES ('Rahul','rahul7@gmail.com','1234567890',24,'Raipur')
+ON CONFLICT (email)
+DO NOTHING;
+```
 ### Select Queries
 ```sql
 SELECT * FROM contact;
@@ -77,8 +89,10 @@ GROUP BY city;
 ```
 ### HAVING
 ```sql
-SELECT DISTINCT city
-FROM contact;
+SELECT city, COUNT(*)
+FROM contact
+GROUP BY city
+HAVING COUNT(*) > 2;
 ```
 ### DISTINCT
 ```sql
@@ -155,13 +169,39 @@ UPDATE contact
 SET salary = 20000,
     department = 'IT';
 ```
+##  UPDATE / DELETE with `RETURNING`
+```sql
+-- Update the salary of a specific employee and return the updated record
+UPDATE contact
+SET salary = 30000
+WHERE eid = 1
+RETURNING *;
+```
+```sql
+-- Delete a specific employee and return the deleted record
+DELETE FROM contact
+WHERE eid = 5
+RETURNING *;
+```
+## DELETE / TRUNCATE
+
+```sql
+-- Delete a specific record from the contact table
+DELETE FROM contact
+WHERE eid = 5;
+```
+```sql
+-- Remove all records from the contact table
+TRUNCATE TABLE contact;
+```
+
 ### Salary Queries {Aggregate Functions}
 ```sql
 SELECT MAX(salary) FROM contact; -- Highest Salary
 SELECT MIN(salary) FROM contact; -- Lowest Salary
 SELECT AVG(salary::numeric) FROM contact; -- Average Salary
 SELECT SUM(salary::numeric) FROM contact; -- Total Salary
-SELECT COUNT(*) FROM contact;  Total Employees
+SELECT COUNT(*) FROM contact;  -- Total Employees
 SELECT name, salary FROM contact WHERE salary = (SELECT MAX(salary) FROM contact); -- Highest Salary Employee
 SELECT name, salary FROM contact WHERE salary = (SELECT MIN(salary) FROM contact); -- Lowest Salary Employee
 
@@ -188,6 +228,62 @@ SELECT AVG(salary)
 FROM contact
 );
 ```
+## 8. `EXISTS` / `NOT EXISTS`
+
+`EXISTS` checks whether the subquery returns **at least one record**.
+
+```sql
+-- Return employees who have at least one matching record in the audit table
+SELECT *
+FROM contact c
+WHERE EXISTS (
+    SELECT 1
+    FROM audit a
+    WHERE a.emp_id = c.eid
+);
+```
+`NOT EXISTS` checks whether the subquery returns **no matching records**.
+```sql
+-- Return employees who do not have any matching record in the audit table
+SELECT *
+FROM contact c
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM audit a
+    WHERE a.emp_id = c.eid
+);
+```
+## ANY / ALL
+
+ANY and ALL are used with a subquery to compare a value with multiple values.
+
+ANY means the condition must be true for at least one value returned by the subquery.
+```sql
+-- Find employees whose salary is greater than at least one salary
+SELECT *
+FROM contact
+WHERE salary > ANY (
+SELECT salary
+FROM contact
+);
+```
+```sql
+ALL means the condition must be true for every value returned by the subquery.
+
+-- Find employees whose salary is greater than all salaries
+SELECT *
+FROM contact
+WHERE salary > ALL (
+SELECT salary
+FROM contact
+);
+```
+### 📝 Simple Meaning
+
+* `EXISTS` → If a matching record exists, return the row.
+* `NOT EXISTS` → If a matching record does not exist, return the row.
+* `SELECT 1` → Used only to check whether a matching record exists; the actual value is not important.
+
 ##  LIMIT & OFFSET
 ```sql
 SELECT name, salary FROM contact ORDER BY salary DESC LIMIT 3; -- Top 3 Highest Salary Employee
@@ -300,6 +396,15 @@ FROM menu
 RIGHT JOIN food_group
 ON menu.gid = food_group.gid;
 ```
+**FULL OUTER JOIN**FULL  returns all records from both tables (`menu and food_group`). If no matching record is found in either table, the columns from the table without a match will contain NULL.
+```sql
+-- Return all records from both tables, including unmatched records
+SELECT *
+FROM menu
+FULL OUTER JOIN food_group
+ON menu.gid = food_group.gid;
+```
+
 **CROSS JOIN** returns the Cartesian product of both tables. Every row from the **`menu`** table is combined with every row from the **`food_group`** table.
 
 **Example:** If the `menu` table has **5 rows** and the `food_group` table has **3 rows**, the result will contain **15 rows**.
@@ -353,6 +458,19 @@ SELECT LENGTH(menu_name) FROM menu;
 -- Replace 'ROL' with 'ROLL' in the menu name
 SELECT REPLACE(menu_name, 'ROL', 'ROLL') FROM menu;
 ```
+## `COALESCE` / `NULLIF`
+
+```sql
+-- Replace NULL department values with 'Not Assigned'
+SELECT name, COALESCE(department, 'Not Assigned')
+FROM contact;
+```
+
+```sql
+-- Return NULL when the age value is 0
+SELECT NULLIF(age, 0)
+FROM contact;
+```
 ##  Math Functions
 
 Common mathematical functions in PostgreSQL.
@@ -369,6 +487,26 @@ SELECT CEIL(10.1);
 
 -- Round to the nearest integer
 SELECT ROUND(10.4);
+```
+### 5. Date & Time Functions
+
+```sql
+-- Return the current date
+SELECT CURRENT_DATE;
+
+-- Return the current time
+SELECT CURRENT_TIME;
+
+-- Return the current date and time with time zone
+SELECT CURRENT_TIMESTAMP;
+
+-- Return the current date and time
+SELECT NOW();
+```
+```sql
+-- Extract the year from the created_at timestamp
+SELECT EXTRACT(YEAR FROM created_at)
+FROM qtymast;
 ```
 ##  User-Defined Function
 
@@ -433,7 +571,7 @@ BEGIN
   INSERT INTO back_contact(emp_id,name, email, mobile, age, city, salary, department)
   VALUES (OLD.eid, OLD.name, OLD.email, OLD.mobile, OLD.age, OLD.city, OLD.salary, OLD.department);
 
-  RETURN NEW;
+  RETURN OLD;
 END;
 $$ LANGUAGE plpgsql;
 ```
@@ -449,7 +587,7 @@ ON contact
 FOR EACH ROW
 EXECUTE FUNCTION backup();
 ```
-##  View Function
+## ## View Trigger Function Definition
 
 Display the source code of the trigger function.
 
@@ -528,20 +666,48 @@ When a new record is inserted into the `contact` table, the **`AFTER INSERT`** t
 ##  Get the Identity Sequence Name
 -- Get the sequence name associated with the 'eid' identity column.
 ```sql
+-- Find the sequence associated with the column
 SELECT pg_get_serial_sequence('contact', 'eid');
 ```
-##  Restart the Identity Sequence
+## Restart the Identity Sequence
 
-Restart the identity sequence so the next generated ID starts from **3**.
+Restart the identity sequence so that the next generated ID starts from **3**.
+
+### Method 1 — Recommended for Identity Columns
+
 ```sql
 -- Restart the identity sequence from 3
-ALTER SEQUENCE public.contact_id_seq RESTART WITH 3;
+ALTER TABLE contact
+ALTER COLUMN eid RESTART WITH 3;
 ```
+
+### Method 2 — Using the Sequence Name
+
+If you know the exact sequence name, you can restart it directly:
+
+```sql
+-- Restart the sequence from 3
+ALTER SEQUENCE public.contact_eid_seq RESTART WITH 3;
+```
+
+### To find the sequence name:
+```sql
+SELECT pg_get_serial_sequence('contact', 'eid');
+```
+
 ## 📝 Notes
-Resets the PostgreSQL identity sequence so that the next automatically generated ID starts from **3**.
+
+Restarts the identity sequence so that the next automatically generated ID starts from **3**.
+
+## Important
+
+* `GENERATED ALWAYS AS IDENTITY` → ✅ Supported
+* `GENERATED BY DEFAULT AS IDENTITY` → ✅ Supported
+* `SERIAL` → ❌ `ALTER TABLE ... RESTART WITH` is not supported
+
+> **Note:** `ALTER TABLE ... RESTART WITH` is specifically used for **Identity columns**. For `SERIAL` columns, use the associated sequence with `ALTER SEQUENCE`.
 
 ##  Add a Column with a Default Value
-
 Add a new column to the `contact` table with a default value.
 
 ```sql
@@ -554,23 +720,39 @@ ADD COLUMN status VARCHAR(20) DEFAULT 'active';
 Adds a new `status` column to the `contact` table. If no value is provided during insertion, PostgreSQL automatically sets the value to **`'active'`**.
 
 ## ⭐ Intermediate Topics
+
+### Create a View
+
 ```sql
+-- Create a view to display employee names and salaries
 CREATE VIEW employee_view AS
-SELECT name,salary
+SELECT name, salary
 FROM contact;
 ```
-### view
+
+### Query the View
+
 ```sql
-SELECT * FROM contact
+-- Retrieve all data from the employee view
+SELECT *
+FROM employee_view;
+```
+
+### Filter Data Using WHERE
+
+```sql
+-- Retrieve the employee whose name is Rahul
+SELECT *
+FROM contact
 WHERE name = 'Rahul';
 ```
 
+
 ## 👨‍💻 Author
 
-- Kumlesh Kurre
-- Backend Developer
-- Skills:  PostgreSQL
- 
+**Kumlesh Kurre**
+Backend Developer | PostgreSQL & SQL Learner
+
 ## ⭐ Support
 If you like this project, please ⭐ star the repository to support my work!
   
